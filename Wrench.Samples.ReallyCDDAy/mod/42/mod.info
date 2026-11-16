@@ -1,0 +1,5 @@
+name=A Really CD DA (.NET)
+id=WrenchReallyCDDAy
+description=PZ's "A Really CD DA" challenge, ported to C#. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.ReallyCDDAy.dll
+require=\Wrench

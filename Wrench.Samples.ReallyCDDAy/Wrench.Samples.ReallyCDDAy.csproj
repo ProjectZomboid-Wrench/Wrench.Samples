@@ -5,11 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <PZModId>WrenchReallyCDDAy</PZModId>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Provided by Wrench.Host at runtime; a mod must not ship its own copy. -->
         <ProjectReference Include="..\Wrench.Api\Wrench.Api.csproj" Private="false" />
     </ItemGroup>
+
+    <Import Project="..\build\Wrench.PzMod.targets" />
 
 </Project>

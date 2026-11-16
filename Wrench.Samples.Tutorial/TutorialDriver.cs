@@ -7,6 +7,10 @@ namespace Wrench.Samples.Tutorial;
 /// leaving its data and the Lua tutorial steps in place. PZ's own code keeps calling <c>Tutorial1.*</c> by name, so
 /// patching the table is enough to redirect it.
 /// </summary>
+/// <remarks>
+/// Install it as a Wrench-local mod (<c>wrench/mods/</c>), not a PZ mod: starting the tutorial clears PZ's active mod
+/// list, which would disable it.
+/// </remarks>
 public sealed class TutorialDriver : ModInstance
 {
     private static readonly (int X, int Y, int Z)[] BoardedWindows =
