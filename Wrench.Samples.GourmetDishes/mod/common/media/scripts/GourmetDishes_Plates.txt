@@ -1,0 +1,69 @@
+module GourmetDishes
+{
+    imports
+    {
+        Base
+    }
+
+    item PlateWithRice
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 1.2,
+        Icon = Plate,
+        BadCold = true,
+        GoodHot = true,
+        EatType = plate,
+        IsCookable = true,
+        ReplaceOnUse = Base.Plate,
+        MinutesToCook = 15,
+        MinutesToBurn = 30,
+        DaysFresh = 4,
+        DaysTotallyRotten = 5,
+        HungerChange = -15,
+        UnhappyChange = -20,
+        Calories = 200,
+        Carbohydrates = 30,
+        Lipids = 5,
+        Proteins = 20,
+        WorldStaticModel = Plate_Ground,
+    }
+
+    craftRecipe MakePlateWithRice
+    {
+        timedAction = Making,
+        time = 80,
+        OnCreate = GourmetDishes.OnCreate.MakePlateOfRice,
+        Tags = AnySurfaceCraft;Cooking,
+        category = Cooking,
+        xpAward = Cooking:3,
+        inputs
+        {
+            item 1 tags[base:ricerecipe] flags[IsCookedFoodItem;InheritFoodAge;ItemCount],
+            item 1 [Base.Plate],
+        }
+        outputs
+        {
+            item 1 GourmetDishes.PlateWithRice,
+        }
+    }
+
+    craftRecipe MakeTwoPlatesWithRice
+    {
+        timedAction = Making,
+        time = 80,
+        OnCreate = GourmetDishes.OnCreate.MakePlateOfRice,
+        Tags = AnySurfaceCraft;Cooking,
+        category = Cooking,
+        xpAward = Cooking:3,
+        inputs
+        {
+            item 1 tags[base:ricerecipe] flags[IsCookedFoodItem;InheritFoodAge;ItemCount],
+            item 2 [Base.Plate],
+        }
+        outputs
+        {
+            item 2 GourmetDishes.PlateWithRice,
+        }
+    }
+}

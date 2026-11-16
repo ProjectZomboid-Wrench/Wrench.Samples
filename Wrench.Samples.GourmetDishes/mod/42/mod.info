@@ -1,0 +1,5 @@
+name=Gourmet Dishes (.NET)
+id=WrenchGourmetDishes
+description=Serve cooked rice onto plates. A B42 port of one recipe from V6's Gourmet Dishes, with its OnCreate in C#. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.GourmetDishes.dll
+require=\Wrench
