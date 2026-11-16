@@ -104,20 +104,20 @@ public sealed class ReallyCDDAy : ModInstance
             return;
 
         var square = player.getCurrentSquare();
-        if (square == null)
+        if (square is null)
             return;
         var room = square.getRoom();
-        if (room == null)
+        if (room is null)
             return;
         var building = room.getBuilding();
-        if (building == null)
+        if (building is null)
             return;
 
-        var badRooms = Lua.GetGlobal("ArrayList")!.@new();
+        var badRooms = Lua.GetGlobal("ArrayList")!.Dot.@new();
         badRooms.add("kitchen");
         badRooms.add("garage");
         var tile = building.getRandomRoomExcluding(badRooms).getRandomSquare();
-        Lua.GetGlobal("IsoFireManager")!.explode(Lua.Call("getCell"), tile, 100000);
+        Lua.GetGlobal("IsoFireManager")!.Dot.explode(Lua.Call("getCell"), tile, 100000);
         Log.Info("Lit the fire");
     }
 
