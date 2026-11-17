@@ -1,5 +1,6 @@
 using Wrench;
 using Zomboid.Characters;
+using Zomboid.ContextMenus;
 using Zomboid.Entity.Components.Crafting.Recipe;
 using Zomboid.Inventory;
 using Zomboid.Inventory.Types;
@@ -9,17 +10,35 @@ namespace Wrench.Samples.GourmetDishes;
 /// <summary>
 /// The OnCreate for the mod's craftRecipes (<c>OnCreate = GourmetDishes.OnCreate.MakePlateOfRice</c>): splits the
 /// cooked rice's nutrition across the plates made, names them after it and gives back the emptied pot. The age comes
-/// through the recipe's InheritFoodAge.
+/// through the recipe's InheritFoodAge. Plates can then be garnished from their inventory context menu (<see cref="Garnish"/>).
 /// </summary>
 public sealed class GourmetDishes : ModInstance
 {
     private const string PlateType = "Base.Plate";
+    private const string PlateWithRiceType = "GourmetDishes.PlateWithRice";
     private const float PlatingHappiness = 5;
     private static readonly string[] NameNoise = ["Fresh", "Stale", "Cooked", "(", ")"];
 
-    public override void OnLoad() =>
-        PatchLua(() => Lua.Define("GourmetDishes.OnCreate.MakePlateOfRice",
-            (CraftRecipeData craftData, IsoGameCharacter character) => Serve(craftData, character, "Plate")));
+    public override void OnLoad()
+    {
+        PatchLua(() =>
+        {
+            Lua.Define("GourmetDishes.OnCreate.MakePlateOfRice",
+                (CraftRecipeData craftData, IsoGameCharacter character) => Serve(craftData, character, "Plate"));
+        });
+    }
+
+    [InventoryCommand(GarnishPlate.Text, Item = PlateWithRiceType, CanExecute = nameof(CanGarnish))]
+    private void Garnish(Food plate, IsoPlayer player)
+    {
+        Lua.GetGlobal("ISInventoryPaneContextMenu").Dot.transferIfNeeded(player.AsGameObject(), plate.AsGameObject());
+        new GarnishPlate(player, plate).Queue();
+    }
+
+    private static CommandState CanGarnish(Food plate, IsoPlayer player) =>
+        GarnishPlate.IsGarnished(plate) ? CommandState.Hidden
+        : plate.IsFrozen() ? CommandState.Disabled("Tooltip_GourmetDishes_Frozen")
+        : CommandState.Enabled;
 
     private void Serve(CraftRecipeData craftData, IsoGameCharacter? character, string container)
     {
