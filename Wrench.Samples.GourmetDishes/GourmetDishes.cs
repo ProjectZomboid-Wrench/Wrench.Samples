@@ -1,9 +1,9 @@
 using Wrench;
-using Zomboid.Characters;
-using Zomboid.ContextMenus;
-using Zomboid.Entity.Components.Crafting.Recipe;
-using Zomboid.Inventory;
-using Zomboid.Inventory.Types;
+using Zomboid.Java.Characters;
+using Zomboid.Java.Entity.Components.Crafting.Recipe;
+using Zomboid.Java.Inventory;
+using Zomboid.Java.Inventory.Types;
+using Zomboid.Lua.ContextMenus;
 
 namespace Wrench.Samples.GourmetDishes;
 

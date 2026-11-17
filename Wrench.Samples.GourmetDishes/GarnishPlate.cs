@@ -1,7 +1,7 @@
-using Zomboid;
-using Zomboid.Characters;
-using Zomboid.Inventory.Types;
-using Zomboid.TimedActions;
+using Zomboid.Java;
+using Zomboid.Java.Characters;
+using Zomboid.Java.Inventory.Types;
+using Zomboid.Lua.TimedActions;
 
 namespace Wrench.Samples.GourmetDishes;
 
