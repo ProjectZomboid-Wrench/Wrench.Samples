@@ -31,7 +31,7 @@ internal sealed class GarnishPlate : TimedAction
         SetActionAnim("Craft");
     }
 
-    public override void Update() => Plate.JobDelta = JobDelta;
+    public override void Update() => Plate.JobDelta = (float)GetJobDelta();
 
     public override void Stop()
     {
