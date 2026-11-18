@@ -1,0 +1,5 @@
+name=Gather All (.NET)
+id=WrenchGatherAll
+description=Take every item of a type from all the containers around you. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.GatherAll.dll
+require=\Wrench

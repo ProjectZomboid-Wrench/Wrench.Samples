@@ -1,0 +1,6 @@
+{
+    "UI_NeedsAlerts_Title": "Needs Alerts",
+    "UI_NeedsAlerts_thirst": "Alert when thirsty",
+    "UI_NeedsAlerts_hunger": "Alert when hungry",
+    "UI_NeedsAlerts_fatigue": "Alert when tired"
+}

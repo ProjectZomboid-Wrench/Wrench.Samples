@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net11.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <PZModId>WrenchKillTally</PZModId>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="KillTally.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Wrench.Api\Wrench.Api.csproj" Private="false" />
+        <ProjectReference Include="..\Wrench.Game.Java\Wrench.Game.Java.csproj" Private="false" />
+    </ItemGroup>
+
+    <Import Project="..\build\Wrench.PzMod.targets" />
+
+</Project>

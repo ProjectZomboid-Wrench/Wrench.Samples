@@ -1,0 +1,5 @@
+name=Room Lights (.NET)
+id=WrenchRoomLights
+description=Turn every light in a room on or off from the right-click menu. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.RoomLights.dll
+require=\Wrench

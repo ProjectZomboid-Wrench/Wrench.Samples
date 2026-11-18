@@ -1,0 +1,5 @@
+name=Needs Alerts (.NET)
+id=WrenchNeedsAlerts
+description=A floating reminder when you get thirsty, hungry or tired. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.NeedsAlerts.dll
+require=\Wrench

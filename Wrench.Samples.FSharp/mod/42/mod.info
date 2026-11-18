@@ -1,0 +1,6 @@
+name=Kill Tally (.NET, F#)
+id=WrenchKillTally
+description=Cheers you on every 25 zombie kills. Written in F#. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.FSharp.dll
+require=\Wrench
+dotnetPermissions=full

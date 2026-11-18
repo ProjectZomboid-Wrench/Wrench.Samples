@@ -1,0 +1,5 @@
+name=Weigh It (.NET, VB)
+id=WrenchWeighIt
+description=Adds a "Weigh" option to every inventory item. Written in Visual Basic. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.VisualBasic.dll
+require=\Wrench

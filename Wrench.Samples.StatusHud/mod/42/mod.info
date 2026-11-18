@@ -1,0 +1,5 @@
+name=Status HUD (.NET)
+id=WrenchStatusHud
+description=A small panel with the time, temperature and carried weight; toggle it with a key. Requires Wrench.
+dotnet=dotnet/Wrench.Samples.StatusHud.dll
+require=\Wrench
