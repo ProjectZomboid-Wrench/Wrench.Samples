@@ -3,6 +3,7 @@ using Zomboid.Java.Characters;
 using Zomboid.Java.Entity.Components.Crafting.Recipe;
 using Zomboid.Java.Inventory;
 using Zomboid.Java.Inventory.Types;
+using Zomboid.Lua;
 using Zomboid.Lua.ContextMenus;
 
 namespace Wrench.Samples.GourmetDishes;
@@ -31,7 +32,7 @@ public sealed class GourmetDishes : ModInstance
     [InventoryCommand(GarnishPlate.Text, Item = PlateWithRiceType, CanExecute = nameof(CanGarnish))]
     private void Garnish(Food plate, IsoPlayer player)
     {
-        Lua.GetGlobal("ISInventoryPaneContextMenu").Dot.transferIfNeeded(player.AsGameObject(), plate.AsGameObject());
+        ISInventoryPaneContextMenu.TransferIfNeeded(player, (InventoryItem)plate);
         new GarnishPlate(player, plate).Queue();
     }
 

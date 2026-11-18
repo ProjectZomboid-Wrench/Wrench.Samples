@@ -1,4 +1,9 @@
 using Wrench;
+using Wrench.Constants;
+using Zomboid.Java;
+using Zomboid.Java.Iso.Objects;
+using Zomboid.Lua;
+using Zomboid.Lua.Umbrella;
 
 namespace Wrench.Samples.ReallyCDDAy;
 
@@ -9,6 +14,13 @@ namespace Wrench.Samples.ReallyCDDAy;
 public sealed class ReallyCDDAy : ModInstance
 {
     private const string ChallengeId = "AReallyCDDAyDotnet";
+
+    private static readonly (int X, int Y, int Z)[] Spawns =
+    [
+        (10788, 9985, 0), (10693, 9745, 0), (10770, 9688, 0), (10746, 9413, 1), (11791, 6855, 0), (11604, 6877, 1),
+        (11496, 6700, 1), (11415, 6665, 0), (11218, 6791, 1), (11217, 6797, 1), (10639, 6800, 1), (10839, 12153, 1),
+        (11673, 6810, 1),
+    ];
 
     private bool _active;
 
@@ -23,72 +35,73 @@ public sealed class ReallyCDDAy : ModInstance
 
     private void AddChallenge()
     {
-        var challenge = Lua.NewTable();
-        challenge["id"] = ChallengeId;
-        challenge["OnInitWorld"] = Lua.Function(OnInitWorld);
-        challenge["AddPlayer"] = Lua.Function((double playerNum, GameObject player) => AddPlayer(player));
-        challenge["RemovePlayer"] = Lua.Function((GameObject? player) => { });
-        challenge["Render"] = Lua.Function(() => { });
-        challenge["completionText"] = "Survive a night to unlock next challenge.";
-        challenge["image"] = "media/lua/client/Challenge/a_really_cdday.png";
-        challenge["video"] = "a_really_cdday.bik";
-        challenge["gameMode"] = "A Really CD DA";
-        challenge["world"] = "Muldraugh, KY";
-        challenge["x"] = 10816;
-        challenge["y"] = 9413;
-        challenge["z"] = 0;
-        challenge["spawns"] = new[]
+        var challenge = new ZomboidChallenge
         {
-            Spawn(10788, 9985, 0), Spawn(10693, 9745, 0), Spawn(10770, 9688, 0), Spawn(10746, 9413, 1),
-            Spawn(11791, 6855, 0), Spawn(11604, 6877, 1), Spawn(11496, 6700, 1), Spawn(11415, 6665, 0),
-            Spawn(11218, 6791, 1), Spawn(11217, 6797, 1), Spawn(10639, 6800, 1), Spawn(10839, 12153, 1),
-            Spawn(11673, 6810, 1),
+            Id = ChallengeId,
+            OnInitWorld = Lua.Function(OnInitWorld),
+            AddPlayer = Lua.Function((double _, GameObject player) => AddPlayer(player)),
+            RemovePlayer = Lua.Function((GameObject? _) => { }),
+            Render = Lua.Function(() => { }),
+            CompletionText = "Survive a night to unlock next challenge.",
+            Image = "media/lua/client/Challenge/a_really_cdday.png",
+            Video = "a_really_cdday.bik",
+            GameMode = "A Really CD DA",
+            World = ZomboidMaps.MuldraughKy,
+            X = 10816,
+            Y = 9413,
+            Z = 0
         };
-        challenge["hourOfDay"] = 7;
 
-        Lua.Call("addChallenge", challenge);
+        var spawns = new LuaSequence<ZomboidChallengeSpawn>();
+        foreach (var (x, y, z) in Spawns)
+        {
+            var spawn = new ZomboidChallengeSpawn(x, y, z);
+            spawns.Add(spawn);
+        }
+
+        challenge.Spawns = spawns;
+        challenge.HourOfDay = 7;
+
+        LuaGlobals.AddChallenge(challenge);
         // addChallenge looks the name up as a translation key, which only exists for the built-in id.
-        challenge["name"] = "A Really CD DA (.NET)";
-        challenge["description"] = Lua.Call("getText", "Challenge_AReallyCDDAy_desc");
+        challenge.Name = "A Really CD DA (.NET)";
+        challenge.Description = Globals.GetText("Challenge_AReallyCDDAy_desc");
     }
-
-    private static Dictionary<string, object?> Spawn(int x, int y, int z) => new() { ["x"] = x, ["y"] = y, ["z"] = z };
 
     private void OnInitWorld()
     {
-        var sandbox = Lua.GetGlobal("SandboxVars")!;
-        sandbox.Zombies = 1;
-        sandbox.Distribution = 1;
-        sandbox.DayLength = 3;
-        sandbox.StartMonth = 12;
-        sandbox.StartTime = 2;
-        sandbox.WaterShutModifier = -1;
-        sandbox.ElecShutModifier = -1;
+        var sandbox = LuaGlobals.SandboxVars;
+        sandbox.Zombies = SandboxValues.Zombies.Insane;
+        sandbox.Distribution = SandboxValues.Distribution.UrbanFocused;
+        sandbox.DayLength = SandboxValues.DayLength._1Hour;
+        sandbox.StartMonth = SandboxValues.StartMonth.December;
+        sandbox.StartTime = SandboxValues.StartTime._9AM;
+        sandbox.WaterShutModifier = SandboxValues.WaterShutModifier.Instant;
+        sandbox.ElecShutModifier = SandboxValues.ElecShutModifier.Instant;
         sandbox.LootItemRemovalList = "";
-        sandbox.Temperature = 3;
-        sandbox.Rain = 3;
-        sandbox.ErosionSpeed = 1;
-        sandbox.Farming = 3;
-        sandbox.NatureAbundance = 5;
-        sandbox.PlantResilience = 3;
-        sandbox.PlantAbundance = 3;
-        sandbox.Alarm = 3;
-        sandbox.LockedHouses = 3;
-        sandbox.FoodRotSpeed = 3;
-        sandbox.FridgeFactor = 3;
-        sandbox.LootRespawn = 1;
-        sandbox.StatsDecrease = 3;
+        sandbox.Temperature = SandboxValues.Temperature.Normal;
+        sandbox.Rain = SandboxValues.Rain.Normal;
+        sandbox.ErosionSpeed = SandboxValues.ErosionSpeed.VeryFast;
+        sandbox.Farming = SandboxValues.Farming.Normal;
+        sandbox.NatureAbundance = SandboxValues.NatureAbundance.VeryAbundant;
+        sandbox.PlantResilience = SandboxValues.PlantResilience.Normal;
+        sandbox.PlantAbundance = SandboxValues.PlantAbundance.Normal;
+        sandbox.Alarm = SandboxValues.Alarm.Rare;
+        sandbox.LockedHouses = SandboxValues.LockedHouses.Rare;
+        sandbox.FoodRotSpeed = SandboxValues.FoodRotSpeed.Normal;
+        sandbox.FridgeFactor = SandboxValues.FridgeFactor.Normal;
+        sandbox.StatsDecrease = SandboxValues.StatsDecrease.Normal;
         sandbox.StarterKit = false;
-        sandbox.TimeSinceApo = 13;
+        sandbox.TimeSinceApo = SandboxValues.TimeSinceApo._12Months;
         sandbox.MultiHitZombies = false;
 
-        sandbox.MultiplierConfig = new Dictionary<string, object?>
-        {
-            ["XPMultiplierGlobal"] = 1,
-            ["XPMultiplierGlobalToggle"] = true,
-        };
+        // The Lua original still sets B41's LootRespawn and XPMultiplierGlobal*, which B42 no longer reads.
+        var multipliers = new SandboxVarsMultiplierConfig();
+        multipliers.Global = 1;
+        multipliers.GlobalToggle = true;
+        sandbox.MultiplierConfig = multipliers;
 
-        sandbox.ZombieConfig.PopulationMultiplier = Lua.GetGlobal("ZombiePopulationMultiplier")!.Insane;
+        sandbox.ZombieConfig.PopulationMultiplier = ZombiePopulationMultiplier.Insane;
 
         _active = true;
         Log.Info("Challenge world initialised");
@@ -99,25 +112,19 @@ public sealed class ReallyCDDAy : ModInstance
         if (!_active)
             return;
 
-        var player = Lua.Call("getPlayer")!;
-        if (player.getHoursSurvived() > 0)
+        var player = Globals.GetPlayer();
+        if (player.GetHoursSurvived() > 0)
             return;
 
-        var square = player.getCurrentSquare();
-        if (square is null)
-            return;
-        var room = square.getRoom();
-        if (room is null)
-            return;
-        var building = room.getBuilding();
+        var building = player.CurrentSquare?.Room?.GetBuilding();
         if (building is null)
             return;
 
-        var badRooms = Lua.GetGlobal("ArrayList")!.Dot.@new();
-        badRooms.add("kitchen");
-        badRooms.add("garage");
-        var tile = building.getRandomRoomExcluding(badRooms).getRandomSquare();
-        Lua.GetGlobal("IsoFireManager")!.Dot.explode(Lua.Call("getCell"), tile, 100000);
+        var badRooms = new JavaList<string>();
+        badRooms.Add("kitchen");
+        badRooms.Add("garage");
+        var tile = building.GetRandomRoomExcluding(badRooms).GetRandomSquare();
+        IsoFireManager.Explode(Globals.GetCell(), tile, 100000);
         Log.Info("Lit the fire");
     }
 

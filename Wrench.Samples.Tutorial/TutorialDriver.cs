@@ -1,4 +1,12 @@
 using Wrench;
+using Zomboid.Java;
+using Zomboid.Java.Characters;
+using Zomboid.Java.Core;
+using Zomboid.Java.Inventory;
+using Zomboid.Java.Inventory.Types;
+using Zomboid.Java.Iso;
+using Zomboid.Java.Iso.Objects;
+using Zomboid.Lua;
 
 namespace Wrench.Samples.Tutorial;
 
@@ -67,7 +75,7 @@ public sealed class TutorialDriver : ModInstance
 
     private void PreloadInit()
     {
-        var desc = Global("SurvivorFactory").Dot.CreateSurvivor(Global("SurvivorType").Neutral, true);
+        var desc = SurvivorFactory.CreateSurvivor(SurvivorFactory.SurvivorType.Neutral, true);
         var world = Lua.Call("getWorld")!;
         world.setLuaPlayerDesc(desc);
         world.getLuaTraits().clear();
@@ -93,8 +101,8 @@ public sealed class TutorialDriver : ModInstance
 
     private void CloseBothInv()
     {
-        Tutorial.Dot.closeLoot();
-        Tutorial.Dot.closeInv();
+        Tutorial1.CloseLoot();
+        Tutorial1.CloseInv();
         Lua.Call("getPlayer")!.setBannedAttacking(false);
     }
 
@@ -119,23 +127,24 @@ public sealed class TutorialDriver : ModInstance
         }
     }
 
-    private object? CreateInventoryContextMenu(double player, object? isInPlayerInventory, GameObject items, double x, double y)
+    private object? CreateInventoryContextMenu(double player, object? isInPlayerInventory, LuaSequence<dynamic> items, double x, double y)
     {
         var tutorial = Tutorial;
         var paneMenu = Global("ISInventoryPaneContextMenu");
-        var context = Global("ISContextMenu").Dot.get(player, x, y);
+        var menu = ISContextMenu.Get_((int)player, x, y);
+        var context = (dynamic)menu.Table;
         context.blinkOption = paneMenu.blinkOption;
 
         dynamic? testItem = null;
-        foreach (var v in items.Sequence())
+        foreach (var v in items)
         {
             if (!InstanceOf(v, "InventoryItem"))
                 testItem = v.items[1];
         }
         if (testItem is null)
         {
-            Log.Debug($"inventory menu: no test item among {items.Sequence().Count()} entries");
-            return context;
+            Log.Debug($"inventory menu: no test item among {items.Count} entries");
+            return menu;
         }
 
         if (Lua.Truthy(tutorial.contextMenuEat) && testItem.getType() == "DeadRat")
@@ -161,14 +170,14 @@ public sealed class TutorialDriver : ModInstance
             if (Lua.Truthy(character.isEquipped(testItem)))
                 context.addOption(Text("ContextMenu_Unequip"), new object[] { testItem }, paneMenu.onUnEquip, player);
             else
-                paneMenu.Dot.doWearClothingMenu(player, testItem, items, context);
+                ISInventoryPaneContextMenu.DoWearClothingMenu((int)player, (object?)testItem, items, menu);
 
             if (Lua.Truthy(testItem.getClothingItemExtraOption()))
-                paneMenu.Dot.doClothingItemExtraMenu(context, testItem, character);
+                ISInventoryPaneContextMenu.DoClothingItemExtraMenu(menu, ((GameObject)testItem).As<InventoryItem>(), ((GameObject)character).As<IsoPlayer>());
         }
         Log.Debug($"inventory menu: item={testItem.getType()} eat={tutorial.contextMenuEat} primary={tutorial.contextMenuEquipPrimary} " +
                   $"wear={tutorial.contextMenuWear} -> {context.numOptions} option(s)");
-        return context;
+        return menu;
     }
 
     private object? CreateWorldContextMenuFromContext(GameObject context, GameObject worldObjects)
@@ -217,11 +226,8 @@ public sealed class TutorialDriver : ModInstance
         return context;
     }
 
-    private object? CreateWorldContextMenu(double player, GameObject worldObjects, double x, double y)
-    {
-        var context = Global("ISContextMenu").Dot.get(player, x, y);
-        return Tutorial.Dot.createWorldContextMenuFromContext(context, worldObjects);
-    }
+    private object? CreateWorldContextMenu(double player, LuaSequence<IsoObject> worldObjects, double x, double y) =>
+        Tutorial1.CreateWorldContextMenuFromContext(ISContextMenu.Get_((int)player, x, y), worldObjects);
 
     // True when the double-click was handled here; false lets ISInventoryPane handle it.
     private bool DoubleClickInventory(GameObject inventoryPane, double x, double y, object? mouseOverOption)
@@ -239,10 +245,11 @@ public sealed class TutorialDriver : ModInstance
         if (x < pane.column2)
             return false;
 
-        GameObject actualItems = Global("ISInventoryPane").Dot.getActualItems(new object[] { item });
-        foreach (var actual in actualItems.Sequence())
+        var clicked = LuaSequence<dynamic>.New();
+        clicked.Add(item);
+        foreach (var actual in ISInventoryPane.GetActualItems(clicked))
         {
-            if (InstanceOf(actual, "HandWeapon") || !Lua.Truthy(tutorial.contextMenuEquipPrimary))
+            if (actual is HandWeapon || !Lua.Truthy(tutorial.contextMenuEquipPrimary))
                 return true;
         }
         return false;
@@ -269,26 +276,26 @@ public sealed class TutorialDriver : ModInstance
         SetUpCharacter(Lua.Call("getPlayer")!);
 
         foreach (var (x, y, z) in BoardedWindows)
-            tutorial.Dot.addBarricade(x, y, z);
+            Tutorial1.AddBarricade(x, y, z);
         var bandageStep = Global("BandageStep");
-        bandageStep.barricadedWindow1 = tutorial.Dot.addMetalBarricade(179, 147, 0);
+        bandageStep.barricadedWindow1 = Tutorial1.AddMetalBarricade(179, 147, 0);
         bandageStep.curtain = bandageStep.barricadedWindow1.HasCurtains();
         bandageStep.curtain.ToggleDoorSilent();
-        tutorial.Dot.addMetalBarricade(179, 150, 0);
-        tutorial.Dot.addMetalBarricade(177, 153, 0);
-        tutorial.Dot.addBarricade(195, 194, 0);
-        tutorial.Dot.addBarricade(197, 199, 0);
+        Tutorial1.AddMetalBarricade(179, 150, 0);
+        Tutorial1.AddMetalBarricade(177, 153, 0);
+        Tutorial1.AddBarricade(195, 194, 0);
+        Tutorial1.AddBarricade(197, 199, 0);
 
-        tutorial.Dot.lockDoor(131, 181, 0);
-        Global("SneakStep").fenceGate = tutorial.Dot.lockDoor(169, 145, 0);
+        Tutorial1.LockDoor(131, 181, 0);
+        Global("SneakStep").fenceGate = Tutorial1.LockDoor(169, 145, 0);
         var fightStep = Global("FightStep");
-        fightStep.lockedDoor = tutorial.Dot.lockDoor(163, 153, 0);
-        fightStep.lockedDoor2 = tutorial.Dot.lockDoor(164, 153, 0);
-        bandageStep.lockedDoor = tutorial.Dot.lockDoor(176, 153, 0);
-        tutorial.Dot.lockDoor(193, 194, 0);
-        tutorial.Dot.lockDoor(106, 128, 0);
+        fightStep.lockedDoor = Tutorial1.LockDoor(163, 153, 0);
+        fightStep.lockedDoor2 = Tutorial1.LockDoor(164, 153, 0);
+        bandageStep.lockedDoor = Tutorial1.LockDoor(176, 153, 0);
+        Tutorial1.LockDoor(193, 194, 0);
+        Tutorial1.LockDoor(106, 128, 0);
 
-        tutorial.Dot.removeFences();
+        Tutorial1.RemoveFences();
 
         var directions = Global("IsoDirections");
         Lua.Call("addVehicleDebug", "Base.PickupBurnt", directions.E, -1, Lua.Call("getSquare", 164, 160, 0));
@@ -329,7 +336,7 @@ public sealed class TutorialDriver : ModInstance
         // The Lua does Events.OnTick.Add(Tutorial1.Tick), but Events.*.Add silently ignores anything that isn't a Lua
         // closure, including .NET functions; Wrench's own subscription has no such restriction.
         StopTicking();
-        _ticking = RegisterLuaEvent(LuaEvents.OnTick, () => Tutorial.Dot.Tick());
+        _ticking = RegisterLuaEvent(LuaEvents.OnTick, Tutorial1.Tick);
         Log.Info("Init");
     }
 
@@ -346,13 +353,12 @@ public sealed class TutorialDriver : ModInstance
         inventory.clear();
         visual.setSkinTextureIndex(2);
 
-        var immutableColor = Global("ImmutableColor");
         visual.setHairModel("Longcurly");
-        visual.setHairColor(immutableColor.Dot.@new(0.83, 0.67, 0.27, 1));
+        visual.setHairColor(new ImmutableColor(0.83f, 0.67f, 0.27f, 1f));
         character.resetModel();
 
         var shirt = inventory.AddItem("Base.Tshirt_DefaultTEXTURE_TINT");
-        shirt.getVisual().setTint(immutableColor.Dot.@new(1, 1, 1, 1));
+        shirt.getVisual().setTint(new ImmutableColor(1f, 1f, 1f, 1f));
         Wear(character, shirt);
         var shorts = inventory.AddItem("Base.Shorts_ShortDenim");
         shorts.getVisual().setTextureChoice(2);
@@ -533,11 +539,10 @@ public sealed class TutorialDriver : ModInstance
 
     private void RemoveFences()
     {
-        var tutorial = Tutorial;
         for (var x = 178; x <= 187; x++)
-            tutorial.Dot.replaceFence(Lua.Call("getSquare", x, 153, 0), true);
+            Tutorial1.ReplaceFence(Globals.GetSquare(x, 153, 0), true);
         for (var y = 143; y <= 152; y++)
-            tutorial.Dot.replaceFence(Lua.Call("getSquare", 188, y, 0), false);
+            Tutorial1.ReplaceFence(Globals.GetSquare(188, y, 0), false);
     }
 
     private void ReplaceFence(GameObject? square, bool north)
@@ -552,9 +557,9 @@ public sealed class TutorialDriver : ModInstance
             var obj = objects.get(i);
             if (obj.getType() != wall)
                 continue;
-            var sprite = obj.getSprite().getName();
-            var fence = Global("IsoThumpable").Dot.@new(Lua.Call("getCell"), sq, sprite, north,
-                Global("ISWoodenWall").@new(sprite, sprite, null));
+            string sprite = obj.getSprite().getName();
+            GameObject wallTable = Global("ISWoodenWall").@new(sprite, sprite, null);
+            var fence = new IsoThumpable(Globals.GetCell(), square.As<IsoGridSquare>(), sprite, north, wallTable);
             sq.AddTileObject(fence);
             sq.RemoveTileObject(obj);
             return;
