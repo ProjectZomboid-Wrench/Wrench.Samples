@@ -13,10 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Wrench.Api\Wrench.Api.csproj" Private="false" />
-        <ProjectReference Include="..\Wrench.Game.Java\Wrench.Game.Java.csproj" Private="false" />
+        <PackageReference Include="Wrench.Api" Version="$(WrenchApiVersion)" ExcludeAssets="runtime" />
+        <PackageReference Include="Wrench.Game.Java" Version="$(WrenchGameJavaVersion)" ExcludeAssets="runtime" />
     </ItemGroup>
-
-    <Import Project="..\build\Wrench.PzMod.targets" />
 
 </Project>

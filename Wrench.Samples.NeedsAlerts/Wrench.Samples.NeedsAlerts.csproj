@@ -10,11 +10,9 @@
 
     <ItemGroup>
         <!-- Provided by Wrench.Host at runtime; a mod must not ship its own copy. -->
-        <ProjectReference Include="..\Wrench.Api\Wrench.Api.csproj" Private="false" />
-        <ProjectReference Include="..\Wrench.Game.Java\Wrench.Game.Java.csproj" Private="false" />
-        <ProjectReference Include="..\Wrench.Game.Lua\Wrench.Game.Lua.csproj" Private="false" />
+        <PackageReference Include="Wrench.Api" Version="$(WrenchApiVersion)" ExcludeAssets="runtime" />
+        <PackageReference Include="Wrench.Game.Java" Version="$(WrenchGameJavaVersion)" ExcludeAssets="runtime" />
+        <PackageReference Include="Wrench.Game.Lua" Version="$(WrenchGameLuaVersion)" ExcludeAssets="runtime" />
     </ItemGroup>
-
-    <Import Project="..\build\Wrench.PzMod.targets" />
 
 </Project>
